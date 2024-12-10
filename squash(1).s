@@ -6,7 +6,7 @@ vrambase= _vram_base
 ledbase = _peripheral
 WIDTH	= 80
 HEIGHT  = 45
-DELAY   = 10    # 100
+DELAY   = 900    # 100
 
 ball	=  0	# ball count
 bx	=  4	# ball x
@@ -30,6 +30,11 @@ data_size = delay + 4
 	
 main:	addi	sp, sp, -4
 	sw	ra, 0(sp)	# push return address
+
+	# ボールの初期位置を設定
+	call random_position  # ランダムな位置を取得
+	sw a0, bx(gp)  # ランダムなx座標を保存
+	sw a1, by(gp)  # ランダムなy座標を保存
 
 LOOP0:	la	gp, data	# gp = data pointer
 	li	t0, 3		# ball = 3
@@ -250,10 +255,10 @@ SKIP4:
 	sw	t1, delay(gp)
 SKIP8:	# 
 	# paddle miss hit
-	lw	t0, nx(gp)	# if( nx == WIDTH ) 
-	li	t1, WIDTH
+	lw	t0, nx(gp)	# if( nx == 0 ) 
+	li	t1, 0
 	bne	t0, t1, SKIP9
-	
+		
 	lw	t0, ball(gp)	# ball--
 	addi	t0, t0, -1
 	sw	t0, ball(gp)
@@ -469,3 +474,5 @@ random_position:
 
 .data
 random_seed: .word 123456  # 初期シード値
+next_next_x: .word 0
+next_next_next_x: .word 0
