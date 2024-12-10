@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+rvsim python version (2021/09/23)
+
+rvsim.py の使い方
+
+python3 で
+
+import rvsim
+
+rv = rvsim.rvsim()
+
+# PCおよびRegisterFileの初期化
+rv.reset()
+# 命令メモリの初期化
+rv.init_imem("prog.mif")
+# データメモリの初期化
+rv.init_dmem("data.mif")
+
+# traceモードの設定（以下どれかひとつを選択）
+#rv.set_trace(0) # no trace
+rv.set_trace(1) # all trace
+#rv.set_trace(2) # sb trace only VRAM store
+
+rv.step()	# step実行
+
+rv.reset()	# レジスタの初期化（プログラムの初期化はしない）
+		# python versionでは最初に動作させる必要あり
+		
+rv.read_reg()	 # レジスタの取得
+rv.read_pc()	 # PCの取得　（旧rv.pc）
+rv.set_sw(value) # 0x7ff1000c 番地のスイッチの状態設定，ワードで書き込む
+rv.read_sw()	 # 0x7ff1000c 番地のスイッチの状態をワードで読み出す（旧rv.sw）
+
+# 各メモリ空間からの値読み出し
+# アドレスはオフセットアドレスであることに注意
+rv.read_imem(offset_addr) # 命令メモリをワードで読み出す
+rv.read_dmem(offset_addr) # データメモリをワードで読み出す
+rv.read_vram(offset_addr) # VRAM空間をワードで読み出す
+rv.read_pref(offset_addr) # I/O空間をワードで読み出す
