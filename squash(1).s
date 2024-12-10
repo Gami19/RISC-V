@@ -34,10 +34,12 @@ main:	addi	sp, sp, -4
 LOOP0:	la	gp, data	# gp = data pointer
 	li	t0, 3		# ball = 3
 	sw	t0, ball(gp)
-	li	t0, 70		# bx = 70
-	sw	t0, bx(gp)
-	li	t0, 43		# by = 43
-	sw	t0, by(gp)
+
+	# ランダムなボールの初期位置を設定
+	call random_position  # ランダムな位置を取得
+	sw a0, bx(gp)  # ランダムなx座標を保存
+	sw a1, by(gp)  # ランダムなy座標を保存
+
 	li	t0, 1		# vy = vx = 1
 	sw	t0, vx(gp)
 	sw	t0, vy(gp)
@@ -55,10 +57,10 @@ LOOP0:	la	gp, data	# gp = data pointer
 	#
 	# make field
 	#
-	li	s1, 0		# for( i=0; i < WIDTH ; i++ ){/* all clear */
+	li	s1, 0		# for( i=0; i < WIDTH ; i++ )/* all clear */
 LOOP1:	li	t0, WIDTH
 	bge	s1, t0, BREAK1
-	li	s2, 0		# for( j=0; j < HEIGHT; j++ ) {
+	li	s2, 0		# for( j=0; j < HEIGHT; j++ ) 
 LOOP2:	li	t0, HEIGHT
 	bge	s2, t0, BREAK2
 	move	a1, s1
@@ -90,7 +92,7 @@ BREAK1:
 
 	li	s1, 0
 LOOP3:	li	t0, WIDTH
-	bge	s1, t0, BREAK3	# for( i=0; i < WIDTH ; i++ ){
+	bge	s1, t0, BREAK3	# for( i=0; i < WIDTH ; i++ )
 	move	a1, s1
 	li	a2, 2
 	li	a3, '-'
@@ -103,7 +105,7 @@ LOOP3:	li	t0, WIDTH
 BREAK3:
 	li	s1, 2
 LOOP4:	li	t0, HEIGHT
-	bge	s1, t0, BREAK4	# for( i=2; i < HEIGHT ; i++ ){
+	bge	s1, t0, BREAK4	# for( i=2; i < HEIGHT ; i++ )
 	li	a1, 0
 	li	a3, '|'
 	move	a2, s1
@@ -128,7 +130,7 @@ BREAK5:	li	a1, 28
 	call	v_puts
 
 LOOP:	# make paddle
-	li	s1, 0		#for( i=0; i < pl; i++ ){
+	li	s1, 0		#for( i=0; i < pl; i++ )
 LOOP6:	lw	t0, pl(gp)
 	bge	s1, t0, BREAK6
 	li	a1, 10
@@ -189,9 +191,9 @@ BREAK6:
 	#sw	t0, vx(gp)
 
 SKIP3:	# paddle check
-	lw	t0, nx(gp)	# if( nx == 10 ) {
+	lw	t0, nx(gp)	# if( nx == 10 ) 
 	li	t1, 10
-	li	s1, 0		# for( i=0 , hit=0 ; i < pl ; i++ ) {
+	li	s1, 0		# for( i=0 , hit=0 ; i < pl ; i++ ) 
 	sw	s1, hit(gp)
 	beq	t0, t1,	LOOP7
 	j	SKIP4
@@ -200,15 +202,15 @@ LOOP7:	lw	s2, pl(gp)
 	bge	s1, s2, SKIP4
 	lw	s2, by(gp)
 	lw	s3, py(gp)
-	add	s3, s3, s1	# if( by == py+i ) {
+	add	s3, s3, s1	# if( by == py+i ) 
 	beq	s2, s3,	BREAK8
 	
 
 BREAK7:	add	s1, s1, 1
-	j	LOOP7		# }
+	j	LOOP7		# 
 SKIP4:
 	#  paddle hit
-	lw	t0, hit(gp)	# if( hit ) {
+	lw	t0, hit(gp)	# if( hit ) 
 	beq	t0, zero, SKIP8
 	#lw	t0, bx(gp)	# nx = bx
 	#sw	t0, nx(gp)
@@ -246,9 +248,9 @@ SKIP4:
 	li	t0, 3
 	div	t1, t1, t0
 	sw	t1, delay(gp)
-SKIP8:	# }
+SKIP8:	# 
 	# paddle miss hit
-	lw	t0, nx(gp)	# if( nx == WIDTH ) {	
+	lw	t0, nx(gp)	# if( nx == WIDTH ) 
 	li	t1, WIDTH
 	bne	t0, t1, SKIP9
 	
@@ -312,14 +314,15 @@ SKIP13:	lw	t1, pl(gp)
 SKIP14:	
 	li	s1, 0
 LOOP15:	lw	s2, pl(gp)
-	bge	s1, s2, SKIP15		# for( i=0 ; i < pl ; i++ ){/* delete paddle */
+	bge	s1, s2, SKIP15		# for( i=0 ; i < pl ; i++ )
+	/* delete paddle */
 	li	a1, 10
 	lw	a2, py(gp)
 	add	a2, a2, s1
 	li	a3, ' '
 	call	v_putc			#   v_putc( 10, py+i, ' ' );
 	addi	s1, s1, 1
-	j	LOOP15			# }
+	j	LOOP15			# 
 SKIP15:	
 	lw	t0, npy(gp)
 	sw	t0, py(gp)	# py = npy
@@ -333,7 +336,7 @@ SKIP15:
 	lw	t0, nx(gp)
 	sw	t0, bx(gp)	# bx = nx
 
-	j	LOOP		# }
+	j	LOOP		# 
 
 BREAK8:	# Game over
 	# delete ball
@@ -344,22 +347,37 @@ BREAK8:	# Game over
 
 	li	a1, 28
 	li	a2, 20
-	la	a3, str_5
+	la	a3, str_game_over  # ゲームオーバーメッセージ
 	call	v_puts
 
-LOOP10:	call	getsw
+LOOP_GAME_OVER:	# 再スタートのための入力待ち
+	call	getsw
 	srli	a0, a0, 20
 	li	t0, 1
-	beq	a0, t0,	BREAK10		# if( a0 & 0x0100000 ) break; /* center = restart */
-	j	LOOP10
-	
-BREAK10:
-	li	a1, 28
-	li	a2, 20
-	la	a3, str_6
-	call	v_puts
+	beq	a0, t0, BREAK_GAME_OVER  # 中央ボタンが押されたら再スタート
+	j	LOOP_GAME_OVER
 
-	j	LOOP0		# } while loop
+BREAK_GAME_OVER:
+	# ゲームの初期化処理をここに追加
+	li	t0, 3		# ボールの数を初期化
+	sw	t0, ball(gp)	# ボールの数を保存
+	li	t0, 4		# ボールの初期 x 座標
+	sw	t0, bx(gp)	# ボールの x 座標を保存
+	li	t0, 8		# ボールの初期 y 座標
+	sw	t0, by(gp)	# ボールの y 座標を保存
+	li	t0, 1		# ボールの速度を初期化
+	sw	t0, vx(gp)
+	sw	t0, vy(gp)
+	li	t0, 10		# パドルの初期位置
+	sw	t0, py(gp)
+	li	t0, 3		# パドルの長さ
+	sw	t0, pl(gp)
+	li	t0, 0		# ヒットカウントを初期化
+	sw	t0, count(gp)
+	li	t0, DELAY	# 遅延を初期化
+	sw	t0, delay(gp)
+
+	j	LOOP0		# ゲームループに戻る
 	
 	lw	ra, 0(sp)
 	addi	sp, sp, 4
@@ -373,7 +391,7 @@ v_puts:	addi	sp, sp, -16
 	sw	a1, 4(sp)
 	sw	a3, 8(sp)
 v_puts1:sw	a3,12(sp)
-	lb	a3, 0(a3)	# while( *str != '\0' ) {
+	lb	a3, 0(a3)	# while( *str != '\0' ) 
 	beq	a3, zero, v_puts2
 	call	v_putc		# v_putc( x++, y, *str++ )
 	add	a1, a1, 1
@@ -427,3 +445,27 @@ str_3:	.string	"Balls:"
 str_4:	.string	"Hit count:"
 str_5:	.string "Push center button to start!"
 str_6:	.string "                            "
+str_game_over:	.string "Game Over! Press center button to restart."
+
+# ランダムなボールの位置を生成する関数
+random_position:
+	# LCGのパラメータ
+	li t0, 1664525  # a
+	li t1, 1013904223  # c
+	li t2, 4294967296  # m (2^32)
+	
+	# 乱数の初期値を設定
+	lw t3, random_seed  # 前の乱数を読み込む
+	mul t4, t3, t0      # X_n * a
+	add t4, t4, t1      # (X_n * a + c)
+	rem t3, t4, t2      # (X_n * a + c) mod m
+	sw t3, random_seed   # 新しい乱数を保存
+
+	# 乱数をx座標とy座標に変換
+	rem a0, t3, WIDTH   # 0からWIDTH-1の範囲
+	rem a1, t3, HEIGHT  # 0からHEIGHT-1の範囲
+
+	ret
+
+.data
+random_seed: .word 123456  # 初期シード値
