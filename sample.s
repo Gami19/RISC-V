@@ -6,6 +6,7 @@
 	.global	main
 	.align	2
 
+
 main:	addi	sp, sp, -4
 	sw	ra, 0(sp)	# push return address
 
@@ -78,7 +79,7 @@ RESET_OBSTACLE:
 	#
 	# v_putc(x,y,ch) // x: a1, y: a2, ch: a3
 	#
-v_putc:	li	t0, WIDTH	# t0 = XSIZE
+v_putc:	li	t0, 80	# t0 = XSIZE
 	mul	t0, a2, t0	# t0 = y * XSIZE
 	add	t0, t0, a1	# t0 = y * XSIZE + x
 	la	t1, vrambase
