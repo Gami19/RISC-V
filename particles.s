@@ -41,11 +41,7 @@ main:	addi	sp, sp, -4
 	addi t0, t0, -1
 	sw t0, nx(gp)
 
-	# 衝突チェック
-	lw t0, nx(gp)
-	bne t0, t1, SKIP3
-
-	# ここでボールの位置をリセットする処理を追加
+	# ボールが画面外に出た場合の処理
 	li t0, 4  # 初期x座標
 	sw t0, bx(gp)
 	li t0, 8  # 初期y座標
@@ -198,94 +194,23 @@ BREAK6:
 	addi	t0, t0, -1
 	sw	t0, nx(gp)
 
-	# collision check
-	lw	t0, nx(gp)
-	bne	t0, t1, SKIP3
+	# ボールが画面外に出た場合の処理
+	li t0, 4  # 初期x座標
+	sw t0, bx(gp)
+	li t0, 8  # 初期y座標
+	sw t0, by(gp)
 
-	#li	t0, 1		# nx = 1
-	#sw	t0, nx(gp)
-	#lw	t0, by(gp)	# ny = by
-	#sw	t0, ny(gp)
-	#lw	t0, vx(gp)	# vx = -vx
-	#sub	t0, zero, t0
-	#sw	t0, vx(gp)
+SKIP3:	# パドルのヒット判定を削除
+	# ボールがパドルに当たった場合の処理を削除
+	# 代わりにボールが画面外に出た場合の処理を強化
+	lw t0, nx(gp)	# if( nx == 0 ) 
+	li t1, 0
+	bne t0, t1, SKIP9
 
-SKIP3:	# paddle check
-	lw	t0, nx(gp)	# if( nx == 10 ) 
-	li	t1, 10
-	li	s1, 0		# for( i=0 , hit=0 ; i < pl ; i++ ) 
-	sw	s1, hit(gp)
-	beq	t0, t1,	LOOP7
-	j	SKIP4
-
-	# パドルのヒット判定
-	lw t0, hit(gp)  # ヒットフラグを取得
-	beq t0, zero, SKIP8
-	# ヒットした場合の処理を追加
-	# ヒットカウントを増やす処理を追加
-	lw t0, count(gp)
-	addi t0, t0, 1
-	sw t0, count(gp)
-	
-LOOP7:	lw	s2, pl(gp)
-	bge	s1, s2, SKIP4
-	lw	s2, by(gp)
-	lw	s3, py(gp)
-	add	s3, s3, s1	# if( by == py+i ) 
-	beq	s2, s3,	BREAK8
-	
-
-BREAK7:	add	s1, s1, 1
-	j	LOOP7		# 
-SKIP4:
-	#  paddle hit
-	lw	t0, hit(gp)	# if( hit ) 
-	beq	t0, zero, SKIP8
-	#lw	t0, bx(gp)	# nx = bx
-	#sw	t0, nx(gp)
-	#lw	t0, by(gp)	# ny = by
-	#sw	t0, ny(gp)
-	#lw	t0, vx(gp)	# vx = -vx
-	#sub	t0, zero, t0
-	#sw	t0, vx(gp)
-	#lw	t0, count(gp)	# count++
-	#addi	t0, t0, 1
-	#sw	t0, count(gp)
-
-	li	a1, 78
-	li	a2, 1
-	lw	a3, count(gp)
-	la	t1, ledbase
-	sw	a3, 0(t1)
-	li	t0, 10
-	div	a3, a3, t0
-	addi	a3, a3, '0'
-	call	v_putc		# v_putc( 78, 1, '0'+(count/10)); /* display paddle hit count */
-	addi	a1, a1, 1
-	lw	a3, count(gp)
-	li	t0, 10
-	rem	a3, a3, t0
-	addi	a3, a3, '0'
-	call	v_putc		# v_putc( 79, 1, '0'+(count%10)); /* display paddle hit count */
-	
-	lw	t0, count(gp)	# if( count >= 5 && delay == DELAY ) delay = DELAY/3;
-	li	t1, 5
-	blt	t0, t1, SKIP8
-	lw	t0, delay(gp)
-	li	t1, DELAY
-	bne	t0, t1, SKIP8
-	li	t0, 3
-	div	t1, t1, t0
-	sw	t1, delay(gp)
-SKIP8:	# 
-	# paddle miss hit
-	lw	t0, nx(gp)	# if( nx == 0 ) 
-	li	t1, 0
-	bne	t0, t1, SKIP9
-		
-	lw	t0, ball(gp)	# ball--
-	addi	t0, t0, -1
-	sw	t0, ball(gp)
+	# ボールの数を減らす処理を追加
+	lw t0, ball(gp)	# ball--
+	addi t0, t0, -1
+	sw t0, ball(gp)
 
 	li	a1, 64
 	li	a2, 1
