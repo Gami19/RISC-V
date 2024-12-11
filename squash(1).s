@@ -36,6 +36,22 @@ main:	addi	sp, sp, -4
 	sw a0, bx(gp)  # ランダムなx座標を保存
 	sw a1, by(gp)  # ランダムなy座標を保存
 
+	# ボールの移動
+	lw t0, bx(gp)
+	addi t0, t0, -1
+	sw t0, nx(gp)
+
+	# 衝突チェック
+	lw t0, nx(gp)
+	bne t0, t1, SKIP3
+
+	# ここでボールの位置をリセットする処理を追加
+	# もしボールが画面外に出た場合、ボールの位置を初期化する
+	li t0, 4  # 初期x座標
+	sw t0, bx(gp)
+	li t0, 8  # 初期y座標
+	sw t0, by(gp)
+
 LOOP0:	la	gp, data	# gp = data pointer
 	li	t0, 3		# ball = 3
 	sw	t0, ball(gp)
@@ -202,6 +218,15 @@ SKIP3:	# paddle check
 	sw	s1, hit(gp)
 	beq	t0, t1,	LOOP7
 	j	SKIP4
+
+	# パドルのヒット判定
+	lw t0, hit(gp)  # ヒットフラグを取得
+	beq t0, zero, SKIP8
+	# ヒットした場合の処理を追加
+	# ヒットカウントを増やす処理を追加
+	lw t0, count(gp)
+	addi t0, t0, 1
+	sw t0, count(gp)
 	
 LOOP7:	lw	s2, pl(gp)
 	bge	s1, s2, SKIP4
@@ -452,6 +477,11 @@ str_5:	.string "Push center button to start!"
 str_6:	.string "                            "
 str_game_over:	.string "Game Over! Press center button to restart."
 
+
+random_seed: .word 123456  # 初期シード値
+next_next_x: .word 0
+next_next_next_x: .word 0
+
 # ランダムなボールの位置を生成する関数
 random_position:
 	# LCGのパラメータ
@@ -471,8 +501,3 @@ random_position:
 	rem a1, t3, HEIGHT  # 0からHEIGHT-1の範囲
 
 	ret
-
-.data
-random_seed: .word 123456  # 初期シード値
-next_next_x: .word 0
-next_next_next_x: .word 0
