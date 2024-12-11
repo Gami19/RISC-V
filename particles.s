@@ -421,3 +421,11 @@ random_position:
 	rem a1, t3, HEIGHT  # 0からHEIGHT-1の範囲
 
 	ret
+
+ERROR_WIDTH:
+	# エラーハンドリングコードを追加
+	ret
+
+ERROR_HEIGHT:
+	# エラーハンドリングコードを追加
+	ret
