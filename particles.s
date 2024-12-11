@@ -411,17 +411,13 @@ random_position:
 	# LCGのパラメータ
 	li t0, 1664525  # a
 	li t1, 1013904223  # c
-	li t2, 4294967296  # m (2^32)
+	# li t2, 4294967296  # m (2^32)  # この行を削除またはコメントアウト
 	
 	# 乱数の初期値を設定
 	lw t3, random_seed  # 前の乱数を読み込む
 	mul t4, t3, t0      # X_n * a
 	add t4, t4, t1      # (X_n * a + c)
-	rem t3, t4, t2      # (X_n * a + c) mod m
-	sw t3, random_seed   # 新しい乱数を保存
-
-	# 乱数をx座標とy座標に変換
-	rem a0, t3, WIDTH   # 0からWIDTH-1の範囲
+	rem t3, t4, WIDTH   # 0からWIDTH-1の範囲
 	rem a1, t3, HEIGHT  # 0からHEIGHT-1の範囲
 
 	ret
